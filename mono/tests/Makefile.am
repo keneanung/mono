@@ -692,8 +692,9 @@ TESTS_CS_SRC=		\
 	nested_type_visibility.cs	\
 	dynamic-method-churn.cs	\
 	verbose.cs \
-	generic-unmanaged-constraint.cs	\
-	bug-10834.cs
+	generic-unmanaged-constraint.cs \
+	bug-10834.cs \
+	bug-gh-9507.cs
 
 # some tests fail to compile on mcs
 if CSC_IS_ROSLYN
@@ -1520,6 +1521,9 @@ CI_PR_DISABLED_TESTS =
 
 # https://github.com/mono/mono/issues/8997
 CI_PR_DISABLED_TESTS += finalizer-thread.exe
+
+# https://github.com/mono/mono/issues/11392
+CI_PR_DISABLED_TESTS += appdomain-threadpool-unload.exe
 
 # appdomain-threadpool-unload.exe creates 100 appdomains, takes too long with llvm
 LLVM_DISABLED_TESTS = \

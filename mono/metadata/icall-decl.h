@@ -58,7 +58,9 @@ typedef enum {
 // Generate prototypes for coop icall wrappers.
 #define ICALL_TYPE(id, name, first)	/* nothing */
 #define ICALL(id, name, func) 		/* nothing */
-#define HANDLES(id, name, func, ret, nargs, argtypes) MONO_HANDLE_DECLARE_RAW (id, name, func, ret, nargs, argtypes);
+#define HANDLES(id, name, func, ret, nargs, argtypes) \
+	MONO_HANDLE_DECLARE_RAW (id, name, func, ret, nargs, argtypes); \
+	MONO_HANDLE_DECLARE (id, name, func, ret, nargs, argtypes);
 #include "icall-def.h"
 #undef ICALL_TYPE
 #undef ICALL
@@ -86,8 +88,6 @@ ICALL_EXPORT MonoObject* ves_icall_InternalExecute (MonoReflectionMethod*, MonoO
 ICALL_EXPORT MonoObject* ves_icall_InternalInvoke (MonoReflectionMethod*, MonoObject*, MonoArray*, MonoException**);
 ICALL_EXPORT MonoObject* ves_icall_MonoField_GetRawConstantValue (MonoReflectionField* rfield);
 ICALL_EXPORT MonoObject* ves_icall_MonoField_GetValueInternal (MonoReflectionField* field, MonoObject* obj);
-ICALL_EXPORT MonoObject* ves_icall_System_Object_MemberwiseClone (MonoObject*);
-ICALL_EXPORT MonoObject* ves_icall_System_Runtime_CompilerServices_RuntimeHelpers_GetObjectValue (MonoObject*);
 ICALL_EXPORT MonoObject* ves_icall_property_info_get_default_value (MonoReflectionProperty*);
 ICALL_EXPORT MonoReflectionType* ves_icall_Remoting_RealProxy_InternalGetProxyType (MonoTransparentProxy*);
 ICALL_EXPORT MonoString* ves_icall_System_IO_DriveInfo_GetDriveFormat (MonoString*);
@@ -155,7 +155,6 @@ ICALL_EXPORT gint64 ves_icall_System_Threading_Timer_GetTimeMonotonic (void);
 ICALL_EXPORT gint8 ves_icall_System_Buffer_GetByteInternal (MonoArray*, gint32);
 ICALL_EXPORT guint32 ves_icall_System_IO_DriveInfo_GetDriveType (MonoString*);
 ICALL_EXPORT int ves_icall_Interop_Sys_DoubleToString (double, char*, char*, int);
-ICALL_EXPORT int ves_icall_MonoField_get_core_clr_security_level (MonoReflectionField* rfield);
 ICALL_EXPORT int ves_icall_System_Environment_get_Platform (void);
 ICALL_EXPORT int ves_icall_System_Threading_Thread_SystemMaxStackSize (void);
 ICALL_EXPORT int ves_icall_get_method_attributes (MonoMethod* method);
@@ -169,12 +168,9 @@ ICALL_EXPORT void ves_icall_System_Environment_InternalSetEnvironmentVariable (M
 ICALL_EXPORT void ves_icall_System_IO_LogcatTextWriter_Log (const char*, gint32, const char*);
 ICALL_EXPORT void ves_icall_System_NumberFormatter_GetFormatterTables (guint64 const**, gint32 const**, gunichar2 const**, gunichar2 const**, gint64 const**, gint32 const**);
 ICALL_EXPORT void ves_icall_System_RuntimeFieldHandle_SetValueDirect (MonoReflectionField*, MonoReflectionType*, MonoTypedRef*, MonoObject*, MonoReflectionType*);
-ICALL_EXPORT void ves_icall_System_Runtime_CompilerServices_RuntimeHelpers_RunClassConstructor (MonoType*);
-ICALL_EXPORT void ves_icall_System_Runtime_CompilerServices_RuntimeHelpers_RunModuleConstructor (MonoImage*);
 ICALL_EXPORT void ves_icall_System_Runtime_RuntimeImports_Memmove (guint8*, guint8*, guint);
 ICALL_EXPORT void ves_icall_System_Runtime_RuntimeImports_Memmove_wbarrier (guint8*, guint8*, guint, MonoType*);
 ICALL_EXPORT void ves_icall_System_Runtime_RuntimeImports_ZeroMemory (guint8*, guint);
 ICALL_EXPORT void ves_icall_System_Runtime_RuntimeImports_ecvt_s(char*, size_t, double, int, int*, int*);
-ICALL_EXPORT void ves_icall_get_method_info (MonoMethod*, MonoMethodInfo*, MonoError*);
 
 #endif // __MONO_METADATA_ICALL_H__

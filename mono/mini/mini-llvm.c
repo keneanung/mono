@@ -6004,8 +6004,15 @@ process_bb (EmitContext *ctx, MonoBasicBlock *bb)
 					addresses [ins->sreg1] = build_alloca (ctx, t);
 					g_assert (values [ins->sreg1]);
 					LLVMBuildStore (builder, convert (ctx, values [ins->sreg1], type_to_llvm_type (ctx, t)), addresses [ins->sreg1]);
+					addresses [ins->dreg] = addresses [ins->sreg1];
+				} else if (values [ins->sreg1] == addresses [ins->sreg1]) {
+					/* LLVMArgVtypeByRef, have to make a copy */
+					addresses [ins->dreg] = build_alloca (ctx, t);
+					LLVMValueRef v = LLVMBuildLoad (builder, addresses [ins->sreg1], "");
+					LLVMBuildStore (builder, convert (ctx, v, type_to_llvm_type (ctx, t)), addresses [ins->dreg]);
+				} else {
+					addresses [ins->dreg] = addresses [ins->sreg1];
 				}
-				addresses [ins->dreg] = addresses [ins->sreg1];
 			}
 			break;
 		}
@@ -7313,7 +7320,7 @@ emit_method_inner (EmitContext *ctx)
 			else
 				name = g_strdup_printf ("arg_%d", i);
 		}
-		LLVMSetValueName (values [cfg->args [i + sig->hasthis]->dreg], name);
+		LLVMSetValueName (LLVMGetParam (method, pindex), name);
 		g_free (name);
 		if (ainfo->storage == LLVMArgVtypeByVal)
 			mono_llvm_add_param_attr (LLVMGetParam (method, pindex), LLVM_ATTR_BY_VAL);
@@ -9031,7 +9038,9 @@ emit_aot_file_info (MonoLLVMModule *module)
 		fields [tindex ++] = AddJitGlobal (module, eltype, "imt_trampolines");
 		fields [tindex ++] = AddJitGlobal (module, eltype, "gsharedvt_arg_trampolines");
 		fields [tindex ++] = AddJitGlobal (module, eltype, "ftnptr_arg_trampolines");
+		fields [tindex ++] = AddJitGlobal (module, eltype, "unbox_arbitrary_trampolines");
 	} else {
+		fields [tindex ++] = LLVMConstNull (eltype);
 		fields [tindex ++] = LLVMConstNull (eltype);
 		fields [tindex ++] = LLVMConstNull (eltype);
 		fields [tindex ++] = LLVMConstNull (eltype);
@@ -9495,9 +9504,9 @@ void
 default_mono_llvm_unhandled_exception (void)
 {
 	MonoJitTlsData *jit_tls = mono_get_jit_tls ();
-	MonoObject *target = mono_gchandle_get_target (jit_tls->thrown_exc);
+	MonoObject *target = mono_gchandle_get_target_internal (jit_tls->thrown_exc);
 
-	mono_unhandled_exception (target);
+	mono_unhandled_exception_internal (target);
 	mono_invoke_unhandled_exception_hook (target);
 	g_assert_not_reached ();
 }
